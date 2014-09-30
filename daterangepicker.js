@@ -48,7 +48,7 @@
         this.template = '<div class="daterangepicker dropdown-menu">' +
             '<div class="calendar left"></div>' +
             '<div class="calendar right"></div>' +
-            '<div class="ranges">' +
+            '<div class="ranges inputs-container actions-container">' +
             '<div class="range_inputs">' +
             '<div class="daterangepicker_start_input">' +
             '<label for="daterangepicker_start"></label>' +
@@ -104,7 +104,7 @@
             .on('change.daterangepicker', 'select.monthselect', $.proxy(this.updateMonthYear, this))
             .on('change.daterangepicker', 'select.hourselect,select.minuteselect,select.ampmselect', $.proxy(this.updateTime, this));
 
-        this.container.find('.ranges')
+        this.container.find('.inputs-container')
             .on('click.daterangepicker', '.daterangepicker_start_input,.daterangepicker_end_input', $.proxy(this.showCalendars, this))
             .on('change.daterangepicker', '.daterangepicker_start_input,.daterangepicker_end_input', $.proxy(this.inputsChanged, this))
             .on('keydown.daterangepicker', '.daterangepicker_start_input,.daterangepicker_end_input', $.proxy(this.inputsKeydown, this))
