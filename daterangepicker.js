@@ -1,5 +1,5 @@
 /**
- * @version: 1.3.14
+ * @version: 1.3.15
  * @author: Dan Grossman http://www.dangrossman.info/
  * @date: 2014-09-04
  * @copyright: Copyright (c) 2012-2014 Dan Grossman. All rights reserved.
@@ -998,7 +998,7 @@
             if (!minDate || minDate.isBefore(calendar.firstDay)) {
                 html += '<th colspan="' + (this.addPadding ? 2 : 1) + '" class="prev available"><i class="' + this.iconLeft + '"></i></th>';
             } else {
-                html += '<th></th>';
+                html += '<th colspan="' + (this.addPadding ? 2 : 1) + '"></th>';
             }
 
             var dateHtml = this.locale.monthNames[calendar[1][1].month()] + calendar[1][1].format(" YYYY");
@@ -1011,7 +1011,7 @@
             if (!maxDate || maxDate.isAfter(calendar.lastDay)) {
                 html += '<th colspan="' + (this.addPadding ? 2 : 1) + '" class="next available"><i class="' + this.iconRight + '"></i></th>';
             } else {
-                html += '<th></th>';
+                html += '<th colspan="' + (this.addPadding ? 2 : 1) + '"></th>';
             }
 
             html += '</tr>';
