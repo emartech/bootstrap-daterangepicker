@@ -133,7 +133,6 @@
         constructor: DateRangePicker,
 
         setOptions: function (options, callback) {
-
             this.startDate = moment().startOf('day');
             this.endDate = moment().endOf('day');
             this.timeZone = moment().zone();
@@ -150,6 +149,7 @@
             this.singleDatePicker = false;
             this.ranges = {};
             this.alwaysShowCalendars = false;
+            this.applyRangeOnClick = true;
 
             this.opens = 'right';
             if (this.element.hasClass('pull-right'))
@@ -310,9 +310,12 @@
                 this.timePicker12Hour = options.timePicker12Hour;
             }
 
-
             if (typeof options.alwaysShowCalendars === 'boolean') {
                 this.alwaysShowCalendars = options.alwaysShowCalendars;
+            }
+
+            if (typeof options.applyRangeOnClick === 'boolean') {
+                this.applyRangeOnClick = options.applyRangeOnClick;
             }
 
             // update day names order to firstDay
@@ -329,11 +332,11 @@
             //if no start/end dates set, check if an input element contains initial values
             if (typeof options.startDate === 'undefined' && typeof options.endDate === 'undefined') {
                 if ($(this.element).is('input[type=text]')) {
-                    var val = $(this.element).val(), 
+                    var val = $(this.element).val(),
                         split = val.split(this.separator);
-                    
+
                     start = end = null;
-                    
+
                     if (split.length == 2) {
                         start = moment(split[0], this.format);
                         end = moment(split[1], this.format);
@@ -472,6 +475,13 @@
 
         },
 
+        setDateRange: function(range) {
+            range || (range = {});
+
+            this.setStartDate(range.startDate);
+            this.setEndDate(range.startDate);
+        },
+
         setStartDate: function (startDate) {
             if (typeof startDate === 'string')
                 this.startDate = moment(startDate, this.format).zone(this.timeZone);
@@ -549,10 +559,14 @@
             this.startDate = start;
             this.endDate = end;
 
-            if (!this.startDate.isSame(this.oldStartDate) || !this.endDate.isSame(this.oldEndDate))
+            if (this.hasRangeChanged())
                 this.notify();
 
             this.updateCalendars();
+        },
+
+        hasRangeChanged: function() {
+            return !this.startDate.isSame(this.oldStartDate) || !this.endDate.isSame(this.oldEndDate);
         },
 
         notify: function () {
@@ -587,7 +601,7 @@
                 this.container.css({
                     top: this.element.offset().top + this.element.outerHeight() - parentOffset.top,
                     left: this.element.offset().left - parentOffset.left + this.element.outerWidth() / 2
-                            - this.container.outerWidth() / 2,
+                    - this.container.outerWidth() / 2,
                     right: 'auto'
                 });
                 if (this.container.offset().left < 0) {
@@ -630,11 +644,11 @@
             this._outsideClickProxy = $.proxy(function (e) { this.outsideClick(e); }, this);
             // Bind global datepicker mousedown for hiding and
             $(document)
-              .on('mousedown.daterangepicker', this._outsideClickProxy)
-              // also explicitly play nice with Bootstrap dropdowns, which stopPropagation when clicking them
-              .on('click.daterangepicker', '[data-toggle=dropdown]', this._outsideClickProxy)
-              // and also close when focus changes to outside the picker (eg. tabbing between controls)
-              .on('focusin.daterangepicker', this._outsideClickProxy);
+                .on('mousedown.daterangepicker', this._outsideClickProxy)
+                // also explicitly play nice with Bootstrap dropdowns, which stopPropagation when clicking them
+                .on('click.daterangepicker', '[data-toggle=dropdown]', this._outsideClickProxy)
+                // and also close when focus changes to outside the picker (eg. tabbing between controls)
+                .on('focusin.daterangepicker', this._outsideClickProxy);
 
             this.isShowing = true;
             this.element.trigger('show.daterangepicker', this);
@@ -648,20 +662,21 @@
                 target.closest(this.element).length ||
                 target.closest(this.container).length ||
                 target.closest('.calendar-date').length
-                ) return;
-            this.hide();
+            ) return;
+            this.clickCancel(e);
         },
 
         hide: function (e) {
             if (!this.isShowing) return;
 
             $(document)
-              .off('.daterangepicker');
+                .off('.daterangepicker');
 
             this.element.removeClass('active');
             this.container.hide();
 
-            if (!this.startDate.isSame(this.oldStartDate) || !this.endDate.isSame(this.oldEndDate))
+
+            if (this.hasRangeChanged())
                 this.notify();
 
             this.oldStartDate = this.startDate.clone();
@@ -751,8 +766,11 @@
                 if (!this.alwaysShowCalendars) {
                     this.hideCalendars();
                 }
-                this.hide();
-                this.element.trigger('apply.daterangepicker', this);
+
+                if (this.applyRangeOnClick) {
+                    this.hide();
+                    this.element.trigger('apply.daterangepicker', this);
+                }
             }
         },
 
@@ -1023,8 +1041,8 @@
             for (var m = 0; m < 12; m++) {
                 if ((!inMinYear || m >= minDate.month()) && (!inMaxYear || m <= maxDate.month())) {
                     monthHtml += "<option value='" + m + "'" +
-                        (m === currentMonth ? " selected='selected'" : "") +
-                        ">" + this.locale.monthNames[m] + "</option>";
+                    (m === currentMonth ? " selected='selected'" : "") +
+                    ">" + this.locale.monthNames[m] + "</option>";
                 }
             }
             monthHtml += "</select>";
@@ -1033,8 +1051,8 @@
 
             for (var y = minYear; y <= maxYear; y++) {
                 yearHtml += '<option value="' + y + '"' +
-                    (y === currentYear ? ' selected="selected"' : '') +
-                    '>' + y + '</option>';
+                (y === currentYear ? ' selected="selected"' : '') +
+                '>' + y + '</option>';
             }
 
             yearHtml += '</select>';
