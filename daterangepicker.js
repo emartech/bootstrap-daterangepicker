@@ -1,7 +1,8 @@
 /**
- * @version: 1.3.17
+ * @version: 1.3.18
  * @author: Dan Grossman http://www.dangrossman.info/
- * @date: 2014-11-12
+ * @author: Istvan Demeter https://github.com/qw3r
+ * @date: 2014-11-27
  * @copyright: Copyright (c) 2012-2014 Dan Grossman. All rights reserved.
  * @license: Licensed under Apache License v2.0. See http://www.apache.org/licenses/LICENSE-2.0
  * @website: http://www.improvely.com/
@@ -75,6 +76,8 @@
 
         this.parentEl = (typeof options === 'object' && options.parentEl && $(options.parentEl).length) ? $(options.parentEl) : $(this.parentEl);
         this.container = $(options.template || this.template).appendTo(this.parentEl);
+        this.togglerEl = (typeof options === 'object' && options.togglerEl && $(options.togglerEl).length) ? $(options.togglerEl) : undefined;
+
 
         this.setOptions(options, cb);
 
@@ -123,7 +126,11 @@
                 'keyup.daterangepicker': $.proxy(this.updateFromControl, this)
             });
         } else {
-            this.element.on('click.daterangepicker', $.proxy(this.toggle, this));
+            if (this.togglerEl) {
+                this.togglerEl.on('click.daterangepicker', $.proxy(this.toggle, this));
+            } else {
+                this.element.on('click.daterangepicker', $.proxy(this.toggle, this));
+            }
         }
 
     };
@@ -475,7 +482,7 @@
 
         },
 
-        setDateRange: function(range) {
+        setDateRange: function (range) {
             range || (range = {});
 
             this.setStartDate(range.startDate);
@@ -565,7 +572,7 @@
             this.updateCalendars();
         },
 
-        hasRangeChanged: function() {
+        hasRangeChanged: function () {
             return !this.startDate.isSame(this.oldStartDate) || !this.endDate.isSame(this.oldEndDate);
         },
 
@@ -575,7 +582,7 @@
         },
 
         move: function () {
-            var parentOffset = { top: 0, left: 0 };
+            var parentOffset = {top: 0, left: 0};
             var parentRightEdge = $(window).width();
             if (!this.parentEl.is('body')) {
                 parentOffset = {
@@ -661,7 +668,8 @@
             if (
                 target.closest(this.element).length ||
                 target.closest(this.container).length ||
-                target.closest('.calendar-date').length
+                target.closest('.calendar-date').length ||
+                (this.togglerEl && target.closest(this.togglerEl).length)
             ) return;
             this.clickCancel(e);
         },
